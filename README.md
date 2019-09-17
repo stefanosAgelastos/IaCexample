@@ -208,18 +208,25 @@ Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 ´´´
 State file and AWS console agree.
 `terraform destroy`
-
+And I remove all the unused resources.
 # Working on the assignment, implementing dependent resources:
 
 I understand that our setup needs:
-- three kinds of core resources from AWS, **EC2**, **autoscaling group** and **Application Load Balancer**
+- three core resources from AWS, **EC2**, **autoscaling group** and **Application Load Balancer**
 - then it also needs some configured software **NGINX serving html** running on the EC2 instances. I can imagine that we could do this easily by choosing a preconfigured image for our instance, but I keep my options open, because I think you expect something else.
 
 ## Setting up the resources:
 ### Autoscaling group
 I will start my research on the **autoscaling group**, since that is onde level above having one instance.
+Here I feel confident enough to also start looking at the tutorial you send me.
 I found the autoscaling group in the AWS provider docs [here](https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html)
-Looking at the tutorial you send me I see that I need a `aws_launch_configuration` 
+Looking at the documentation I see that I need a `aws_launch_configuration`
+**Next steps:**
+1. I insert a `resource "aws_launch_configuration" "example" {..}` I find in the tutorial
+2. I use the same `ami` and `instance_type` from my previous `resource "aws_instance" "example"{..}`
+3. I see that I am missing a `security_groups` field. This will allow trafic and specific protocols to and from the ec2 instances.
+4. I declare a `resource "aws_security_group" "instance" {..}` with rules for tcp port 8080.
+5. Now I am missing 
 
 
 
