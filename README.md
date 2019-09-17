@@ -80,8 +80,8 @@ Resource actions are indicated with the following symbols:
   ........
 
 ```
-
-YES! So now I know what changes will be applied.
+### Confirm the change
+So now I know what changes will be applied.
 I press yes because it looks good..
 
 ### Error with AMI
@@ -124,4 +124,40 @@ OK, now I can see in my AWS console the instance initializing. GOOD.
 ### After apply info
 - `terraform.tfstate` state file. It keeps track of the IDs of created resources so that Terraform knows what it is managing. 
 -  It is generally recommended to setup remote state when working with Terraform, to share the state automatically. [guide](https://www.terraform.io/docs/state/remote.html)
-- `terraform show` will show the current state
+- "These values can actually be referenced to configure other resources or outputs, which will be covered later in the getting started guide."
+
+## Changing Infrastructure
+
+I'm going ahead to change the ami to another one. I expect to see the new plan and aprove it.
+
+Switching from:
+- Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
++ Amazon Linux 2 AMI (HVM), SSD Volume Type
+Instance type remains the same.
+`terraform apply` shows the changes in the plan.
+
+´´´bash
+Enter a value: yes
+
+aws_instance.example: Destroying... [id=i-0e0aab534210a10c7]
+...
+aws_instance.example: Destruction complete after 4m25s
+aws_instance.example: Creating...
+aws_instance.example: Still creating... [10s elapsed]
+aws_instance.example: Creation complete after 13s [id=i-009ad25d5d4901bdf]
+
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+´´´
+I can see the new instance on the AWS web console.
+## Destroy infrastructure
+`terraform destroy` the "opposite" of `apply`
+I try it and get a plan of removing everything.
+**Idea**
+- If I remove everything from the `example.tf` I get `Error: Missing required argument`
+- If I remove only the resource block from `example.tf` I get the same plan as in `terraform destroy`
+I approve the previous plan.
+**Result** 
+The instance is terminated, and the `terraform.tfstate` holds no more resources atm.
+
+## 
+
