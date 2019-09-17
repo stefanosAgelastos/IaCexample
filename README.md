@@ -1,7 +1,5 @@
 # Starting with the assignment
 
-## About terraform
-
 ## Intro and download
 
 Just read the intro to teraform, cool name. I read about the use cases they portray.
@@ -38,13 +36,18 @@ changed AMI to region specific Ubuntu AMI ami-052241f00f12a5cac
 
 `terraform init`
 It recomends to provide version constrints. Will skip that atm.
-`Terraform has been successfully initialized!`
+````
+Terraform has been successfully initialized!
+```
 
 ## Aply changes
 
 `terraform apply`
-**ERROR** error validating provider credentials: error calling sts:GetCallerIdentity: NoCredentialProviders: no valid providers in chain. Deprecated.
+### Error with AWS credentials
+````
+error validating provider credentials: error calling sts:GetCallerIdentity: NoCredentialProviders: no valid providers in chain. Deprecated.
 For verbose messaging see aws.Config.CredentialsChainVerboseError
+```
 
 ### Trying to debug this error
 
@@ -63,9 +66,7 @@ nano nano ~/.aws/credentials
 aws_access_key_id = AKIARR7CRD7BJX7OBI42
 ```
 
-so i see the aws_secret_access_key is missing
-creating new credentials because i didnt't store the accessKeys.csv
-edit the `credentials` with nano
+I see the aws_secret_access_key is missing. I edit the `credentials` with nano
 and now:
 
 ```
@@ -79,25 +80,23 @@ Resource actions are indicated with the following symbols:
 
 YES! So now I know what changes will be applied.
 I press yes because it looks good..
-**ERROR**
 
+### Error with AMI
 ```
 Error: Error launching source instance: InvalidAMIID.NotFound: The image id '[ami-2757f631]' does not exist
         status code: 400, request id: e0429614-be7b-418e-b32b-1fe8ee199080
 ```
 
 OKAY, wrong AMI.
-changing `example.tf`
-and then `terraform apply`
-**ERROR**
+changing `example.tf` and then `terraform apply`
+### Error with AMI
 
 ```
 Error: Error launching source instance: OptInRequired: In order to use this AWS Marketplace product you need to accept terms and subscribe. To do so please visit https://aws.amazon.com/marketplace/pp?sku=3k0ceqj6ojkn6anux1mozu3ih
         status code: 401, request id: b5394b77-4825-40a6-beb6-43b026577e67
 ```
-
 Wrong AMI again
-**ERROR**
+### Error with AMI
 
 ```
 Error: Error launching source instance: Unsupported: The requested configuration is currently not supported. Please check the documentation for supported configurations.
