@@ -184,10 +184,18 @@ Error: Error launching source instance: InvalidAMIID.NotFound: The image id '[am
   on example.tf line 29, in resource "aws_instance" "another":
   29: resource "aws_instance" "another" {
 ´´´
-I see that I have the **wrong ami** for the ec2, and there is some problem with the bucket.
+I see that I have the **wrong ami** for the ec2, and there **naming conflict** the bucket.
 Also I notice that in the state I have resources entries for:
 - elastic ip
 - example ec2 that depends on the bucket.
 - both resources have an empty array for instances.
 - no instances are launched on the AWS atm.
+
+I change the **ami** and the **bucket name** and I ´terraform apply´.
+
+´´´shell
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+´´´
+State file and AWS console agree.
+
 
