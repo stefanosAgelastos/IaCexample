@@ -33,7 +33,7 @@ downloaded, now configuring the AWS CLI
 .tf configuration language docs [here](https://www.terraform.io/docs/configuration/index.html)
 Copied example from [guide](https://learn.hashicorp.com/terraform/getting-started/build#configuration)
 changed region to eu-north-1
-changed AMI to region specific Ubuntu AMI ami-052241f00f12a5cac
+changed AMI to region specific Ubuntu AMI ami-ada823d3
 
 ### point of doubt:
 
@@ -222,12 +222,27 @@ Here I feel confident enough to also start looking at the tutorial you send me.
 I found the autoscaling group in the AWS provider docs [here](https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html)
 Looking at the documentation I see that I need a `aws_launch_configuration`
 **Next steps:**
-1. I insert a `resource "aws_launch_configuration" "example" {..}` I find in the tutorial
-2. I use the `image_id` as `ami` and `instance_type` from my previous `resource "aws_instance" "example"{..}`
+1. I insert a `resource "aws_launch_configuration" "example" {[CONFIG …]}` I find in the tutorial
+2. I use the `image_id` as `ami` and `instance_type` from my previous `resource "aws_instance" "example"{[CONFIG …]}`
 3. I see that I am missing a `security_groups` field. This will allow trafic and specific protocols to and from the ec2 instances.
-4. I declare a `resource "aws_security_group" "instance" {..}` with rules for tcp port 8080.
+4. I declare a `resource "aws_security_group" "instance" {[CONFIG …]}` with rules for tcp port 8080.
 5. Now I am missing the actual `aws_autoscaling_group` resource.
-6. 
+>> `terraform apply` here creates the security group, and launch configuration but no instances are started
+6. I get the resource `"aws_autoscaling_group" "example" {[CONFIG …]}` from the tutorial.
+7. I run `terrafrom apply` and approve
+8. **Error** `AutoScaling Group: ValidationError: At least one Availability Zone or VPC Subnet is required.`
+9. Check the documentation, and add field `security_groups = [aws_security_group.instance.id]`
+10. **SUCCESS** There are two ec2 instances running with the assigned inbound rules.
+11. At this point I want to do a hack and test if the instances are accessible on port 8080.
+12. I copy from the tutorial the following field and set it in `aws_launch_configuration`
+```shell
+  user_data       = <<-EOF
+              #!/bin/bash
+              echo "Hello, World" > index.html
+              nohup busybox httpd -f -p "${var.server_port}" &
+              EOF
+```
+This method doesn't work initially, but then I realised that my image is Linux and busybox is preinstalled on Ubuntu. I changed the `image_id` and applied again. Now I can `curl` any of the two instances and get back `Hello, World`. this is good motivation to keep on.
 
 
 
