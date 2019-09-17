@@ -223,10 +223,11 @@ I found the autoscaling group in the AWS provider docs [here](https://www.terraf
 Looking at the documentation I see that I need a `aws_launch_configuration`
 **Next steps:**
 1. I insert a `resource "aws_launch_configuration" "example" {..}` I find in the tutorial
-2. I use the same `ami` and `instance_type` from my previous `resource "aws_instance" "example"{..}`
+2. I use the `image_id` as `ami` and `instance_type` from my previous `resource "aws_instance" "example"{..}`
 3. I see that I am missing a `security_groups` field. This will allow trafic and specific protocols to and from the ec2 instances.
 4. I declare a `resource "aws_security_group" "instance" {..}` with rules for tcp port 8080.
-5. Now I am missing 
+5. Now I am missing the actual `aws_autoscaling_group` resource.
+6. 
 
 
 
