@@ -37,7 +37,7 @@ changed AMI to region specific Ubuntu AMI ami-052241f00f12a5cac
 `terraform init`
 It recomends to provide version constrints. Will skip that atm.
 
-```bash
+```shell
 Terraform has been successfully initialized!
 ```
 
@@ -45,7 +45,7 @@ Terraform has been successfully initialized!
 
 `terraform apply`
 ### Error with AWS credentials
-```bash
+```shell
 error validating provider credentials: error calling sts:GetCallerIdentity: NoCredentialProviders: no valid providers in chain. Deprecated.
 For verbose messaging see aws.Config.CredentialsChainVerboseError
 ```
@@ -54,14 +54,14 @@ For verbose messaging see aws.Config.CredentialsChainVerboseError
 
 I try:
 
-```bash
+```shell
 ls ~/.aws
 config credentials
 ```
 
 I try
 
-```bash
+```shell
 nano nano ~/.aws/credentials
 [default]
 aws_access_key_id = AKIARR7CRD7BJX7OBI42
@@ -70,7 +70,7 @@ aws_access_key_id = AKIARR7CRD7BJX7OBI42
 I see the aws_secret_access_key is missing. I edit the `credentials` with nano
 and now:
 
-```bash
+```shell
 terraform apply
 
 An execution plan has been generated and is shown below.
@@ -85,7 +85,7 @@ So now I know what changes will be applied.
 I press yes because it looks good..
 
 ### Error with AMI
-```bash
+```shell
 Error: Error launching source instance: InvalidAMIID.NotFound: The image id '[ami-2757f631]' does not exist
 status code: 400, request id: e0429614-be7b-418e-b32b-1fe8ee199080
 ```
@@ -94,14 +94,14 @@ OKAY, wrong AMI.
 changing `example.tf` and then `terraform apply`
 ### Error with AMI
 
-```bash
+```shell
 Error: Error launching source instance: OptInRequired: In order to use this AWS Marketplace product you need to accept terms and subscribe. To do so please visit https://aws.amazon.com/marketplace/pp?sku=3k0ceqj6ojkn6anux1mozu3ih
 status code: 401, request id: b5394b77-4825-40a6-beb6-43b026577e67
 ```
 Wrong AMI again
 ### Error with AMI
 
-```bash
+```shell
 Error: Error launching source instance: Unsupported: The requested configuration is currently not supported. Please check the documentation for supported configurations.
 status code: 400, request id: f3669cc1-da7d-4f8a-8649-542d859b8e61
 
@@ -112,7 +112,7 @@ on example.tf line 6, in resource "aws_instance" "example":
 Wrong instance type, changing to `instance_type = "t3.micro"`
 and now:
 
-```bash
+```shell
 aws_instance.example: Creating...
 aws_instance.example: Still creating... [10s elapsed]
 aws_instance.example: Creation complete after 13s [id=i-0e0aab534210a10c7]
@@ -136,7 +136,7 @@ Switching from:
 Instance type remains the same.
 `terraform apply` shows the changes in the plan.
 
-´´´bash
+´´´shell
 Enter a value: yes
 
 aws_instance.example: Destroying... [id=i-0e0aab534210a10c7]
@@ -159,5 +159,35 @@ I approve the previous plan.
 **Result** 
 The instance is terminated, and the `terraform.tfstate` holds no more resources atm.
 
-## 
+## Apply Resource dependencies
+
+Going to speed up things after a text from Matt.
+Going to assign an elastic IP , edit the example instance to depend on an s3 bucket and another ec2 instance.
+´terrafrom apply´ gives me the new plan that I approve
+
+## Error
+´´´shell
+aws_instance.another: Creating...
+aws_s3_bucket.example: Creating...
+
+Error: Error creating S3 bucket: BucketAlreadyExists: The requested bucket name is not available. The bucket namespace is shared by all users of the system. Please select a different name and try again.
+        status code: 409, request id: E4BB595957437D7D, host id: h7IUpLip25m+n+2A0cZTLybVK2taTVLHS5V2g5H1+WbH5JUJFzFLH8jLWfgD6vW+jiAh6hhvf90=
+
+  on example.tf line 7, in resource "aws_s3_bucket" "example":
+   7: resource "aws_s3_bucket" "example" {
+
+
+
+Error: Error launching source instance: InvalidAMIID.NotFound: The image id '[ami-b374d5a5]' does not exist
+        status code: 400, request id: b6c1508c-78f2-4139-9b4a-300930476750
+
+  on example.tf line 29, in resource "aws_instance" "another":
+  29: resource "aws_instance" "another" {
+´´´
+I see that I have the **wrong ami** for the ec2, and there is some problem with the bucket.
+Also I notice that in the state I have resources entries for:
+- elastic ip
+- example ec2 that depends on the bucket.
+- both resources have an empty array for instances.
+- no instances are launched on the AWS atm.
 
