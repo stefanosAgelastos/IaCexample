@@ -165,7 +165,7 @@ Going to speed up things after a text from Matt.
 Going to assign an elastic IP , edit the example instance to depend on an s3 bucket and another ec2 instance.
 ´terrafrom apply´ gives me the new plan that I approve
 
-## Error
+### Error
 ´´´shell
 aws_instance.another: Creating...
 aws_s3_bucket.example: Creating...
@@ -198,4 +198,15 @@ Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 ´´´
 State file and AWS console agree.
 
+# Working on the assignment, implementing dependent resources:
 
+I understand that our setup needs:
+- three kind of resources from AWS, **EC2**, **autoscaling group** and **Application Load Balancer**
+- then it also needs some configured software **NGINX** running on the EC2 instances. I can imagine that we could do this easily by choosing a preconfigured image for our instance, but I keep my options open, because I think you expect something else.
+
+## Setting up the resources:
+I will start my research on the **ALB**, since that is the entry point of the setup.
+I found the ALB t the AWS provider docs [here](https://www.terraform.io/docs/providers/aws/r/lb.html)
+
+
+# Provisioning :)
