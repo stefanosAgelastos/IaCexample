@@ -277,6 +277,8 @@ Also from a bit of browsing in the providers documentation I found the following
 8. I will do the hack and get the id of the default vpc for the region, and from that extract the subnet ids.
 9. It is working, I have an ALB in the default VPC attached to all three subnets in 2 AZs.
 10. I just read [this page](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html#application-load-balancer-components) about the different components of a ALB. This clears up some things. ![](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/images/component_architecture.png)
+11. Last thing regarding the AZs of the Autoscale group, I will remove the `data "aws_availability_zones" "all" {}` and instead configure the subnet ids as `vpc_zone_identifier  = data.aws_subnet_ids.example.ids`.
+12. Applied and working.
 
 ### Time for the Target Group:
 
