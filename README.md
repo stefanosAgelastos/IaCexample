@@ -71,9 +71,9 @@ Terraform has been successfully initialized!
 ## Apply
 
 `terraform apply`
-### Error with AWS credentials
+
 ```shell
-error validating provider credentials: error calling sts:GetCallerIdentity: NoCredentialProviders: no valid providers in chain. Deprecated.
+**error** validating provider credentials: error calling sts:GetCallerIdentity: NoCredentialProviders: no valid providers in chain. Deprecated.
 For verbose messaging see aws.Config.CredentialsChainVerboseError
 ```
 Let's debug this, I try:
