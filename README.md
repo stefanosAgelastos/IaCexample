@@ -279,10 +279,16 @@ Also from a bit of browsing in the providers documentation I found the following
 10. I just read [this page](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html#application-load-balancer-components) about the different components of a ALB. This clears up some things. ![](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/images/component_architecture.png)
 11. Last thing regarding the AZs of the Autoscale group, I will remove the `data "aws_availability_zones" "all" {}` and instead configure the subnet ids as `vpc_zone_identifier  = data.aws_subnet_ids.example.ids`.
 12. Applied and working.
+13. TODO: I should also do something about the ALB security group
 
 ### Time for the Target Group:
-
-
+I understand that a `aws_lb_target_group` resource will be configured to the `aws_autoscalling_group`. This resource will be the target of the ALB listener rules.
+1. Bring the example resource from providers doc.
+2. Configure the port on which targets receive traffic, 8080, and TCP atm.
+3. ~~Configured `health_check` for `path    = "/"` & `matcher = "200"`. Fingers crossed.~~ TCP.
+4. Now attach the `aws_lb_target_group` to the `aws_autoscalling_group`
+5. `aply` and gives a string error, ~~gonna try interpolation in array~~
+6. I removed the dependency from step 4. `apply` and after the change it does output the ARN
 
 
 
