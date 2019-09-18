@@ -19,10 +19,10 @@ LINKS [Documentation](https://www.terraform.io/) and [tutorial](https://blog.gru
 - [Dependencies](#dependencies)
 
 [Working on Autoscalling group](#working-on-autoscalling-group)
-- [Launch Configuration](#alb)
-- [Security Group](#dependencies)
+- [Launch Configuration](#launch-configuration)
+- [Security Group](#security-group)
 - [Autoscaling Group](#autoscaling-group)
-- [busybox](#alb)
+- [busybox](#busybox)
 
 [Working on ALB](#working-on-alb)
 - [Initial idea](#initial-idea)
@@ -265,7 +265,7 @@ Also from a bit of browsing in the providers documentation I found the following
 12. Applied and working.
 13. TODO: I should also do something about the ALB security group
 
-### Time for the Target Group:
+## Target group
 I understand that a `aws_lb_target_group` resource will be configured to the `aws_autoscalling_group`. This resource will be the target of the ALB listener rules.
 1. Bring the example resource from providers doc.
 2. Configure the port on which targets receive traffic, 8080, and TCP atm.
@@ -279,7 +279,7 @@ I understand that a `aws_lb_target_group` resource will be configured to the `aw
 10. **Success** the `aws_autoscaling_group.example.target_group_arns` outputs a real target group ARN.
 11. **Missing** to connect the ALB to the target group. Listener and rules are next.
 
-### Listener resource.
+## Listener
 Checking the provider documentation of `aws_lb_listener` one can configure an `aws_lb` and a `default_action` towards an `aws_lb_target_group`.
 1. Bring the example resource from providers doc.
 2. Configure ALB and Target Group ARNs and `apply`
@@ -293,17 +293,7 @@ Checking the provider documentation of `aws_lb_listener` one can configure an `a
 10. Configuring one more security group for the load balancer. port 80, tcp.
 11. **Error** 504. Apparently the ALB's security group doesn't allow the requests to reach the target.
 12. Edited the outbound routes! **Success**
+13. Changed all ports to 80.
 
-## Serving a static html file with nginx
-I have decided to use a quickstart maintained AMI, and install nginx through `user_data`.
-
-
-
-
-
-# Provisioners, I shouldn't use them :)
-[from the docs:]
-(https://www.terraform.io/docs/provisioners/#passing-data-into-virtual-machines-and-other-compute-resources)
-If you are building custom machine images, you can make use of the "user data" or "metadata" passed by the above means in whatever way makes sense to your application, by referring to your vendor's documentation on how to access the data at runtime.
-
-This approach is required if you intend to use any mechanism in your cloud provider for automatically launching and destroying servers in a group, because in that case individual servers will launch unattended while Terraform is not around to provision them.
+## Nginx
+I have decided to use a quickstart maintained AMI, and install nginx through `user_data`. Provisioners are not recomended, Marketplace images need manual signing, and I couldn't include im my repo a custom image. Here I encountered various problems. First I removed all the resources and worked on a single instance, and tried various scripts through the `user_data` and through ssh-ing manually in the instance. In the end, the biggest problem was inbound routes that where not configured in the `aws_security_group`.
