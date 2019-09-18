@@ -12,7 +12,6 @@ LINKS [Documentation](https://www.terraform.io/) and [tutorial](https://blog.gru
 - [Initialize](#initialize)
 - [Apply](#apply)
 - [Confirm Change](#confirm-change)
-- [Remarks](#remarks)
 
 [More basics](#more-basics)
 - [Change](#change)
@@ -37,10 +36,13 @@ LINKS [Documentation](https://www.terraform.io/) and [tutorial](https://blog.gru
 
 Just read the intro to terraform, cool name. I read about the use cases they portray.
 ### Setup
-Now I am downloading the CLI tool, set path, run `terraform`
+I am downloading the Terraform CLI tool, set path, run `terraform`, good
+
 Okay, first I'm gonna make myself a new AWS account.
-Now dowloading the amazon CLI
-downloaded, now configuring the AWS CLI
+
+Dowloading the amazon CLI
+
+configuring the AWS CLI
 - making new user with programmatic access for my laptop
 - add user to new group named MyAdministrators
 - Assign to group AdministratorAccess policy: Provides full access to AWS services and resources.
@@ -49,22 +51,18 @@ downloaded, now configuring the AWS CLI
 # Writing the first tf
 ### Touched example.tf
 
-.tf configuration language docs [here](https://www.terraform.io/docs/configuration/index.html)
-Copied example from [guide](https://learn.hashicorp.com/terraform/getting-started/build#configuration)
-changed region to eu-north-1
-changed AMI to region specific Ubuntu AMI ami-ada823d3
+.tf configuration language docs [here](https://www.terraform.io/docs/configuration/index.html).
+Copied example from [guide](https://learn.hashicorp.com/terraform/getting-started/build#configuration), changed region to eu-north-1 and changed AMI to region specific: Ubuntu AMI ami-ada823d3
 
 ### point of doubt:
 
 - "We are explicitly defining the default AWS config profile here to illustrate how Terraform accesses sensitive credentials."
-- "Note: If you simply leave out AWS credentials, Terraform will automatically search for saved API credentials (for example, in ~/.aws/credentials) or IAM instance profile credentials. This option is much cleaner for situations where tf files are checked into source control or where there is more than one admin user."
+- I understand that I could skip the profile field if there's only one user.
 - Details [here](https://aws.amazon.com/blogs/apn/terraform-beyond-the-basics-with-aws/)
-- I understand that I could the profile field if there's only one user
 
 ## Initialize
 
-`terraform init`
-It recomends to provide version constrints. Will skip that atm.
+`terraform init` recomends to provide version constrints. Will skip that atm.
 
 ```shell
 Terraform has been successfully initialized!
@@ -78,10 +76,7 @@ Terraform has been successfully initialized!
 error validating provider credentials: error calling sts:GetCallerIdentity: NoCredentialProviders: no valid providers in chain. Deprecated.
 For verbose messaging see aws.Config.CredentialsChainVerboseError
 ```
-
-### Trying to debug this error
-
-I try:
+Let's debug this, I try:
 
 ```shell
 ls ~/.aws
@@ -96,7 +91,7 @@ nano nano ~/.aws/credentials
 aws_access_key_id = AKIARR7CRD7BJX7OBI42
 ```
 
-I see the aws_secret_access_key is missing. I edit the `credentials` with nano
+See the aws_secret_access_key is missing. I edit the `credentials` with nano
 and now:
 
 ```shell
@@ -110,35 +105,13 @@ Resource actions are indicated with the following symbols:
 
 ```
 ## Confirm change
-So now I know what changes will be applied.
-I press yes because it looks good..
+So now I know what changes will be applied. I press yes because it looks good..
 
-### Error with AMI
-```shell
-Error: Error launching source instance: InvalidAMIID.NotFound: The image id '[ami-2757f631]' does not exist
-status code: 400, request id: e0429614-be7b-418e-b32b-1fe8ee199080
-```
+`**Error:** Error launching source instance....The image id '[ami-2757f631]' does not exist` OKAY, wrong AMI. Changing `example.tf` and then `terraform apply`.
 
-OKAY, wrong AMI.
-changing `example.tf` and then `terraform apply`
-### Error with AMI
+`**Error:** Error launching source instance: ... In order to use this AWS Marketplace product you need to accept terms...` Wrong AMI again.
 
-```shell
-Error: Error launching source instance: OptInRequired: In order to use this AWS Marketplace product you need to accept terms and subscribe. To do so please visit https://aws.amazon.com/marketplace/pp?sku=3k0ceqj6ojkn6anux1mozu3ih
-status code: 401, request id: b5394b77-4825-40a6-beb6-43b026577e67
-```
-Wrong AMI again
-### Error with AMI
-
-```shell
-Error: Error launching source instance: Unsupported: The requested configuration is currently not supported. Please check the documentation for supported configurations.
-status code: 400, request id: f3669cc1-da7d-4f8a-8649-542d859b8e61
-
-on example.tf line 6, in resource "aws_instance" "example":
-6: resource "aws_instance" "example" {
-```
-
-Wrong instance type, changing to `instance_type = "t3.micro"`
+`**Error:** Error launching source instance: ... configuration is currently not supported ... "aws_instance" "example" {..` Wrong instance type, changing to `instance_type = "t3.micro"`
 and now:
 
 ```shell
@@ -150,7 +123,7 @@ Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
 OK, now I can see in my AWS console the instance initializing. GOOD.
 
-## Remarks
+### My notes
 - `terraform.tfstate` state file. It keeps track of the IDs of created resources so that Terraform knows what it is managing. 
 -  It is generally recommended to setup remote state when working with Terraform, to share the state automatically. [guide](https://www.terraform.io/docs/state/remote.html)
 - "These values can actually be referenced to configure other resources or outputs, which will be covered later in the getting started guide."
