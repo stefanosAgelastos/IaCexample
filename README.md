@@ -9,9 +9,6 @@ LINKS [Documentation](https://www.terraform.io/) and [tutorial](https://blog.gru
 [Intro and setup](#intro-and-setup)
 
 [Writing the first tf](#writing-the-first-tf)
-- [Initialize](#initialize)
-- [Apply](#apply)
-- [Confirm Change](#confirm-change)
 
 [More basics](#more-basics)
 - [Change](#change)
