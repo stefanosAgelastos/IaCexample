@@ -3,6 +3,7 @@
 
 The assignment is to use Terraform to provision a load balancer that points to an Autoscaling group which runs ec2 with an NGINX as static HTML server.
 Document your thoughts into a README so I know how you work and where I can help you get better.
+LINKS [Documentation](https://www.terraform.io/) and [tutorial](https://blog.gruntwork.io/an-introduction-to-terraform-f17df9c6d180)
 
 # Contents
 [Intro and setup](#intro-and-setup)
@@ -32,30 +33,20 @@ Document your thoughts into a README so I know how you work and where I can help
 
 [Nginx](#nginx)
 
-Links:
-
-https://www.terraform.io/
-https://blog.gruntwork.io/an-introduction-to-terraform-f17df9c6d180
-
-
 # Intro and setup
 
-Just read the intro to teraform, cool name. I read about the use cases they portray.
-Now I am downloading the CLI tool, and figuring out how to add it to my systems path.
-Done that, moved my binary to /usr/local/bin, and now terrafrom command works on my terminal.
-
-# Writing the first tf
-
+Just read the intro to terraform, cool name. I read about the use cases they portray.
+### Setup
+Now I am downloading the CLI tool, set path, run `terraform`
 Okay, first I'm gonna make myself a new AWS account.
-Uff, okay done.
 Now dowloading the amazon CLI
 downloaded, now configuring the AWS CLI
-
 - making new user with programmatic access for my laptop
 - add user to new group named MyAdministrators
 - Assign to group AdministratorAccess policy: Provides full access to AWS services and resources.
 - Provided credentials of new user to `aws configure`
 
+# Writing the first tf
 ### Touched example.tf
 
 .tf configuration language docs [here](https://www.terraform.io/docs/configuration/index.html)
