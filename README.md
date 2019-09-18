@@ -5,18 +5,18 @@ The assignment is to use Terraform to provision a load balancer that points to a
 Document your thoughts into a README so I know how you work and where I can help you get better.
 
 # Contents
-     1 [Intro and setup](#intro-and-setup) 
-     2 [Writing first .tf](#writing-first-tf)
-     - [Initialize](#initialize)
-     - [Apply](#apply)
-     - [Confirm Change](#confirm-change)
-     - [Remarks](#remarks)
-     3 [More basics](#more-basics)
-     - [Change](#change)
-     - [Destroy](#destroy)
-     - [Dependencies](#dependencies)
-     4 [Working on assignment](#working-on-assignment)
-     4 [Working on assignment](#working-on-assignment)
+1 [Intro and setup](#intro-and-setup)
+2 [Writing the first tf](#writing-the-first-tf)
+- [Initialize](#initialize)
+- [Apply](#apply)
+- [Confirm Change](#confirm-change)
+- [Remarks](#remarks)
+3 [More basics](#more-basics)
+- [Change](#change)
+- [Destroy](#destroy)
+- [Dependencies](#dependencies)
+4 [Working on assignment](#working-on-assignment)
+4 [Working on assignment](#working-on-assignment)
      
 Links:
 
@@ -30,7 +30,7 @@ Just read the intro to teraform, cool name. I read about the use cases they port
 Now I am downloading the CLI tool, and figuring out how to add it to my systems path.
 Done that, moved my binary to /usr/local/bin, and now terrafrom command works on my terminal.
 
-## Writing the first .tf
+# Writing the first tf
 
 Okay, first I'm gonna make myself a new AWS account.
 Uff, okay done.
@@ -56,7 +56,7 @@ changed AMI to region specific Ubuntu AMI ami-ada823d3
 - Details [here](https://aws.amazon.com/blogs/apn/terraform-beyond-the-basics-with-aws/)
 - I understand that I could the profile field if there's only one user
 
-## Initializing
+## Initialize
 
 `terraform init`
 It recomends to provide version constrints. Will skip that atm.
@@ -65,7 +65,7 @@ It recomends to provide version constrints. Will skip that atm.
 Terraform has been successfully initialized!
 ```
 
-## Aply changes
+## Apply
 
 `terraform apply`
 ### Error with AWS credentials
@@ -104,7 +104,7 @@ Resource actions are indicated with the following symbols:
   ........
 
 ```
-### Confirm the change
+## Confirm change
 So now I know what changes will be applied.
 I press yes because it looks good..
 
@@ -145,12 +145,12 @@ Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
 OK, now I can see in my AWS console the instance initializing. GOOD.
 
-### After apply info
+## Remarks
 - `terraform.tfstate` state file. It keeps track of the IDs of created resources so that Terraform knows what it is managing. 
 -  It is generally recommended to setup remote state when working with Terraform, to share the state automatically. [guide](https://www.terraform.io/docs/state/remote.html)
 - "These values can actually be referenced to configure other resources or outputs, which will be covered later in the getting started guide."
-
-## Changing Infrastructure
+# More basics
+## Change
 
 I'm going ahead to change the ami to another one. I expect to see the new plan and aprove it.
 
@@ -173,7 +173,7 @@ aws_instance.example: Creation complete after 13s [id=i-009ad25d5d4901bdf]
 Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
 ´´´
 I can see the new instance on the AWS web console.
-## Destroy infrastructure
+## Destroy
 `terraform destroy` the "opposite" of `apply`
 I try it and get a plan of removing everything.
 **Idea**
@@ -183,7 +183,7 @@ I approve the previous plan.
 **Result** 
 The instance is terminated, and the `terraform.tfstate` holds no more resources atm.
 
-## Apply Resource dependencies
+## Dependencies
 
 Going to speed up things after a text from Matt.
 Going to assign an elastic IP , edit the example instance to depend on an s3 bucket and another ec2 instance.
@@ -223,7 +223,8 @@ Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 State file and AWS console agree.
 `terraform destroy`
 And I remove all the unused resources.
-# Working on the assignment, implementing dependent resources:
+# Working on the assignment
+implementing dependent resources:
 
 I understand that our setup needs:
 - three core resources from AWS, **EC2**, **autoscaling group** and **Application Load Balancer**
