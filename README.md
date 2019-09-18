@@ -4,19 +4,33 @@
 The assignment is to use Terraform to provision a load balancer that points to an Autoscaling group which runs ec2 with an NGINX as static HTML server.
 Document your thoughts into a README so I know how you work and where I can help you get better.
 
+# Contents
+     1 [Intro and setup](#intro-and-setup) 
+     2 [Writing first .tf](#writing-first-tf)
+     - [Initialize](#initialize)
+     - [Apply](#apply)
+     - [Confirm Change](#confirm-change)
+     - [Remarks](#remarks)
+     3 [More basics](#more-basics)
+     - [Change](#change)
+     - [Destroy](#destroy)
+     - [Dependencies](#dependencies)
+     4 [Working on assignment](#working-on-assignment)
+     4 [Working on assignment](#working-on-assignment)
+     
 Links:
 
 https://www.terraform.io/
 https://blog.gruntwork.io/an-introduction-to-terraform-f17df9c6d180
 
 
-## Intro and download
+# Intro and setup
 
 Just read the intro to teraform, cool name. I read about the use cases they portray.
 Now I am downloading the CLI tool, and figuring out how to add it to my systems path.
 Done that, moved my binary to /usr/local/bin, and now terrafrom command works on my terminal.
 
-## Writing the first .tf file.
+## Writing the first .tf
 
 Okay, first I'm gonna make myself a new AWS account.
 Uff, okay done.
