@@ -71,9 +71,9 @@ Terraform has been successfully initialized!
 ## Apply
 
 `terraform apply`
-
+**error** 
 ```shell
-**error** validating provider credentials: error calling sts:GetCallerIdentity: NoCredentialProviders: no valid providers in chain. Deprecated.
+error validating provider credentials: error calling sts:GetCallerIdentity: NoCredentialProviders: no valid providers in chain. Deprecated.
 For verbose messaging see aws.Config.CredentialsChainVerboseError
 ```
 Let's debug this, I try:
@@ -107,11 +107,11 @@ Resource actions are indicated with the following symbols:
 ## Confirm change
 So now I know what changes will be applied. I press yes because it looks good..
 
-`**Error:** Error launching source instance....The image id '[ami-2757f631]' does not exist` OKAY, wrong AMI. Changing `example.tf` and then `terraform apply`.
+**Error:** `Error launching source instance....The image id '[ami-2757f631]' does not exist` OKAY, wrong AMI. Changing `example.tf` and then `terraform apply`.
 
-`**Error:** Error launching source instance: ... In order to use this AWS Marketplace product you need to accept terms...` Wrong AMI again.
+**Error:** `Error launching source instance: ... In order to use this AWS Marketplace product you need to accept terms...` Wrong AMI again.
 
-`**Error:** Error launching source instance: ... configuration is currently not supported ... "aws_instance" "example" {..` Wrong instance type, changing to `instance_type = "t3.micro"`
+**Error:**`Error launching source instance: ... configuration is currently not supported ... "aws_instance" "example" {..` Wrong instance type, changing to `instance_type = "t3.micro"`
 and now:
 
 ```shell
@@ -154,46 +154,32 @@ I can see the new instance on the AWS web console.
 ## Destroy
 `terraform destroy` the "opposite" of `apply`
 I try it and get a plan of removing everything.
+
 **Idea**
 - If I remove everything from the `example.tf` I get `Error: Missing required argument`
 - If I remove only the resource block from `example.tf` I get the same plan as in `terraform destroy`
-I approve the previous plan.
+I approve the above plan.
 **Result** 
 The instance is terminated, and the `terraform.tfstate` holds no more resources atm.
 
 ## Dependencies
 
-Going to speed up things after a text from Matt.
-Going to assign an elastic IP , edit the example instance to depend on an s3 bucket and another ec2 instance.
-´terrafrom apply´ gives me the new plan that I approve
+Going to speed up things after a text from Matt. Going to assign an elastic IP , edit the example instance to depend on an s3 bucket and another ec2 instance. `terrafrom apply` gives me the new plan that I approve
 
-### Error
-´´´shell
-aws_instance.another: Creating...
-aws_s3_bucket.example: Creating...
+**Error**
 
-Error: Error creating S3 bucket: BucketAlreadyExists: The requested bucket name is not available. The bucket namespace is shared by all users of the system. Please select a different name and try again.
-        status code: 409, request id: E4BB595957437D7D, host id: h7IUpLip25m+n+2A0cZTLybVK2taTVLHS5V2g5H1+WbH5JUJFzFLH8jLWfgD6vW+jiAh6hhvf90=
+`Error: Error creating S3 bucket: BucketAlreadyExists.....`
 
-  on example.tf line 7, in resource "aws_s3_bucket" "example":
-   7: resource "aws_s3_bucket" "example" {
+`Error: Error launching source instance: InvalidAMIID.NotFound: `
 
-
-
-Error: Error launching source instance: InvalidAMIID.NotFound: The image id '[ami-b374d5a5]' does not exist
-        status code: 400, request id: b6c1508c-78f2-4139-9b4a-300930476750
-
-  on example.tf line 29, in resource "aws_instance" "another":
-  29: resource "aws_instance" "another" {
-´´´
-I see that I have the **wrong ami** for the ec2, and there **naming conflict** the bucket.
+I see that I have the **wrong ami** for the ec2, and there's a **naming conflict** with the bucket.
 Also I notice that in the state I have resources entries for:
 - elastic ip
 - example ec2 that depends on the bucket.
 - both resources have an empty array for instances.
 - no instances are launched on the AWS atm.
 
-I change the **ami** and the **bucket name** and I ´terraform apply´.
+I change the **ami** and the **bucket name** and I `terraform apply`.
 
 ´´´shell
 Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
@@ -201,31 +187,34 @@ Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 State file and AWS console agree.
 `terraform destroy`
 And I remove all the unused resources.
-# Working on the assignment
-implementing dependent resources:
+# Working on Autoscalling group
+Implementing dependent resources:
 
 I understand that our setup needs:
 - three core resources from AWS, **EC2**, **autoscaling group** and **Application Load Balancer**
-- then it also needs some configured software **NGINX serving html** running on the EC2 instances. I can imagine that we could do this easily by choosing a preconfigured image for our instance, but I keep my options open, because I think you expect something else.
+- then it also needs some configured software **NGINX serving html** running on the EC2 instances. I can imagine that we could do this easily by choosing a preconfigured image for our instance, but I keep my options open.
 
-## Setting up the resources:
-### Autoscaling group
 I will start by exploring the **autoscaling group**, since that is onde level above having one instance.
 Here I feel confident enough to also start looking at the tutorial you send me.
 I found the autoscaling group in the AWS provider docs [here](https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html)
 Looking at the documentation I see that I need a `aws_launch_configuration`
-**Next steps:**
+## Launch Configuration
 1. I insert a `resource "aws_launch_configuration" "example" {[CONFIG …]}` I find in the tutorial
 2. I use the `image_id` as `ami` and `instance_type` from my previous `resource "aws_instance" "example"{[CONFIG …]}`
 3. I see that I am missing a `security_groups` field. This will allow trafic and specific protocols to and from the ec2 instances.
-4. I declare a `resource "aws_security_group" "instance" {[CONFIG …]}` with rules for tcp port 8080.
+## Security Group
+4. I declare a `resource "aws_security_group" "instance" {[CONFIG …]}` with rules for tcp port 8080. 
 5. Now I am missing the actual `aws_autoscaling_group` resource.
->> `terraform apply` here creates the security group, and launch configuration but no instances are started
+> `terraform apply` here creates the security group, and launch configuration but no instances are started
+
+## Autoscaling Group
 6. I get the resource `"aws_autoscaling_group" "example" {[CONFIG …]}` from the tutorial.
 7. I run `terrafrom apply` and approve
 8. **Error** `AutoScaling Group: ValidationError: At least one Availability Zone or VPC Subnet is required.`
 9. Check the documentation, and add field `security_groups = [aws_security_group.instance.id]`
 10. **SUCCESS** There are two ec2 instances running with the assigned inbound rules.
+
+## busybox
 11. At this point I want to do a hack and test if the instances are accessible on port 8080.
 12. I copy from the tutorial the following field and set it in `aws_launch_configuration`
 ```shell
@@ -235,20 +224,21 @@ Looking at the documentation I see that I need a `aws_launch_configuration`
               nohup busybox httpd -f -p "${var.server_port}" &
               EOF
 ```
-This "hack" didn't work initially, but then I realised that my image is Linux and busybox is preinstalled on Ubuntu. I changed the `image_id` and applied again. Now I can `curl` any of the two instances and get back `Hello, World`. this gives me good motivation to keep on. I will leave the busybox there for the moment.
+This "hack" didn't work initially, but then I realised that **my image is Linux and busybox is preinstalled on Ubuntu**. I changed the `image_id` and applied again. Now I can `curl` any of the two instances and get back `Hello, World`. This gives me good motivation to keep on. I will leave the busybox there for the moment.
 
-### Application Load Balancer
-The tutorial explains how to setup a classic LB. 
-My plan is to refer to the provisioners docs [here](https://www.terraform.io/docs/providers/aws/r/lb.html). Another idea is to check how can one do this manually as to figure out what are the dependencies between an ALB and an autoscalling group.
-1. Declare the example usage from the documentation, and strip it down to minimum fields.
+# Working on ALB
+The tutorial explains how to setup a classic LB not ALB. My plan is to refer to the provisioners docs [here](https://www.terraform.io/docs/providers/aws/r/lb.html). Another idea is to check how can one do this manually as to figure out what are the dependencies between an ALB and an autoscalling group.
+
+## Initial idea
+1. Declare the example ALB from the documentation, and strip it down to minimum fields.
 2. The example comes with fields set for `security_groups` & `subnets`. Both are optional according to documentation.
-3. **I was wrong**I provide the id for the `resource "aws_security_group" "instance"{[CONFIG …]}` and remove the `subnets` field
+3. I provide the id for the `resource "aws_security_group" "instance"{[CONFIG …]}` and remove the `subnets` field. **Later I realised I was wrong**
 4. `apply yes`
 5. **Error** `Error: Error creating application Load Balancer: ValidationError: At least two subnets in two different Availability Zones must be specified`
 6. SO apparently subnets are not optional in this case.
 7. I refer to the tutorial and I need to bring in a datasource to get the list of subnets available to my VPC.
-8. From the provider documentation I think something like this will do `aws_subnet_ids`
-8. I take the chance and bring also a datasource for my available AZ, and provide it to the `aws_autoscaling_group`.
+8. From the provider documentation I think something like this will do: `aws_subnet_ids`
+8. I take the opportunity and bring also a datasource for my available AZs, and provide it to the `aws_autoscaling_group`.
 
 **STOP**
 I think I am doing something wrong:
@@ -258,6 +248,7 @@ I think I am doing something wrong:
 4. My autoscalling group is in the Default VPC which has three subnets, in two AZs.
 5. Both of my instances are in the same subnet.
 
+## More reading
 Also from a bit of browsing in the providers documentation I found the following:
 1. `aws_autoscalling_group` has optional field `target_group_arns` that receives a list of `aws_alb_target_group` ARNs for use with ALB.
 2. The AWS manual says also that an Autoscalling Group has to be attached to a target group when choosing ALB.
