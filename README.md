@@ -5,19 +5,18 @@ The assignment is to use Terraform to provision a load balancer that points to a
 Document your thoughts into a README so I know how you work and where I can help you get better.
 
 # Contents
- [Intro and setup](#intro-and-setup)
- 
- [Writing the first tf](#writing-the-first-tf)
+[Intro and setup](#intro-and-setup)
+[Writing the first tf](#writing-the-first-tf)
 - [Initialize](#initialize)
 - [Apply](#apply)
 - [Confirm Change](#confirm-change)
 - [Remarks](#remarks)
- [More basics](#more-basics)
+[More basics](#more-basics)
 - [Change](#change)
 - [Destroy](#destroy)
 - [Dependencies](#dependencies)
- [Working on assignment](#working-on-assignment)
- [Working on assignment](#working-on-assignment)
+[Working on assignment](#working-on-assignment)
+[Working on assignment](#working-on-assignment)
      
 Links:
 
