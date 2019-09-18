@@ -6,6 +6,7 @@ Document your thoughts into a README so I know how you work and where I can help
 
 # Contents
  [Intro and setup](#intro-and-setup)
+ 
  [Writing the first tf](#writing-the-first-tf)
 - [Initialize](#initialize)
 - [Apply](#apply)
