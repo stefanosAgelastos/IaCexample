@@ -28,7 +28,7 @@ resource "aws_lb" "test" {
   subnets            = data.aws_subnet_ids.example.ids
 }
 
-// Target Group for Autoscalling Group
+// ALB Target Group for Autoscalling Group
 resource "aws_lb_target_group" "test" {
   name     = "tf-example-lb-tg"
   port     = 8080
@@ -40,6 +40,13 @@ resource "aws_lb_target_group" "test" {
   } */
 }
 
+//ASG Attachment
+resource "aws_autoscaling_attachment" "asg_attachment_bar" {
+  autoscaling_group_name = "${aws_autoscaling_group.example.id}"
+  alb_target_group_arn   = "${aws_lb_target_group.test.arn}"
+}
+
+// Security Group for the Target Instances
 resource "aws_security_group" "instance" {
   name = "terraform-example-instance"
   ingress {
@@ -50,6 +57,7 @@ resource "aws_security_group" "instance" {
   }
 }
 
+// Launch Configuration for the Autoscaling Group
 resource "aws_launch_configuration" "example" {
   image_id        = "ami-ada823d3"
   instance_type   = "t3.micro"
@@ -64,11 +72,10 @@ resource "aws_launch_configuration" "example" {
   }
 }
 
-
+// Autoscalling Group
 resource "aws_autoscaling_group" "example" {
   launch_configuration = aws_launch_configuration.example.id
   vpc_zone_identifier  = data.aws_subnet_ids.example.ids
-  target_group_arns    = aws_lb_target_group.test.id
   min_size             = 2
   max_size             = 10
   tag {
@@ -81,6 +88,6 @@ resource "aws_autoscaling_group" "example" {
 /* security_groups    = ["${aws_security_group.instance.id}"] */
 
 // output whatever you need. console.log() 
-output "instance_ip_addr" {
-  value = aws_lb_target_group.test.id
+output "aws_autoscaling_group_target_group_arns" {
+  value = aws_autoscaling_group.example.target_group_arns
 }

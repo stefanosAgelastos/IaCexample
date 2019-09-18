@@ -289,6 +289,14 @@ I understand that a `aws_lb_target_group` resource will be configured to the `aw
 4. Now attach the `aws_lb_target_group` to the `aws_autoscalling_group`
 5. `aply` and gives a string error, ~~gonna try interpolation in array~~
 6. I removed the dependency from step 4. `apply` and after the change it does output the ARN
+7. So I am having this problem, the Autoscale group doesnt wait for the target group ARN. I am thinking to place a `depends on` configuration, but terraform should be dealing with that. Let's google.
+8. I discovered the `aws_autoscaling_attachment`. Hmm... Apparently it can attach to an `aws_autoscalling_group` two things: a classic `aws_elb` or an `aws_alb_target_group` :)
+9. I configure the attchment resource.
+10. **Success** the `aws_autoscaling_group.example.target_group_arns` outputs a real target group ARN.
+11. **Missing** to connect the ALB to the target group. Listener and rules are next.
+
+### Listener reource.
+
 
 
 
