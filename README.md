@@ -295,7 +295,18 @@ I understand that a `aws_lb_target_group` resource will be configured to the `aw
 10. **Success** the `aws_autoscaling_group.example.target_group_arns` outputs a real target group ARN.
 11. **Missing** to connect the ALB to the target group. Listener and rules are next.
 
-### Listener reource.
+### Listener resource.
+Checking the provider documentation of `aws_lb_listener` one can configure an `aws_lb` and a `default_action` towards an `aws_lb_target_group`.
+1. Bring the example resource from providers doc.
+2. Configure ALB and Target Group ARNs and `apply`
+3. **Error** ´The **listener** and its associated **target group** have incompatible protocols´ okay.
+4. **Error** Both protocols have to be HTTP. Hmm...
+5. Both in HTTP and same port applies and changes.
+6. Changing Listener to port 80, and leaving target group at 8080, it still applies and changes.
+7. In both cases above I do not manage to connect to server.
+8. Edited the default security group that was auto assigne to the ALB, and now I can get the `Hello, world` message!
+9. **Success** forwarding works on different ports also!
+10. Configuring one more security group for the load balancer
 
 
 

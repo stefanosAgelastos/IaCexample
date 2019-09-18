@@ -20,11 +20,23 @@ data "aws_subnet_ids" "example" {
   vpc_id = "${data.aws_vpc.selected.id}"
 }
 
+// Security Group for the ALB
+resource "aws_security_group" "lb_sg" {
+  name = "terraform-example-alb"
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 // ALB
 resource "aws_lb" "test" {
   name               = "test-alb-tf"
   internal           = false
   load_balancer_type = "application"
+  security_groups    = ["${aws_security_group.lb_sg.id}"]
   subnets            = data.aws_subnet_ids.example.ids
 }
 
@@ -32,12 +44,24 @@ resource "aws_lb" "test" {
 resource "aws_lb_target_group" "test" {
   name     = "tf-example-lb-tg"
   port     = 8080
-  protocol = "TCP"
+  protocol = "HTTP"
   vpc_id   = data.aws_vpc.selected.id
   /*   health_check {
     path    = "/"
     matcher = "200"
   } */
+}
+
+// Listener for forwarding to Target Group
+resource "aws_lb_listener" "server" {
+  load_balancer_arn = "${aws_lb.test.arn}"
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = "${aws_lb_target_group.test.arn}"
+  }
 }
 
 //ASG Attachment
