@@ -5,7 +5,7 @@ provider "aws" {
 
 // hold server port
 variable "server_port" {
-  description = "The port the server will use for HTTP requests"
+  description = "The port the system will use for HTTP requests"
   type        = number
   default     = 80
 }
@@ -52,10 +52,10 @@ resource "aws_lb_target_group" "test" {
   port     = var.server_port
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.selected.id
-  /*   health_check {
+   health_check {
     path    = "/"
-    matcher = "200"
-  } */
+    matcher = "200,304"
+  }
 }
 
 // Listener for forwarding to Target Group
@@ -77,9 +77,16 @@ resource "aws_autoscaling_attachment" "asg_attachment_bar" {
 }
 
 // Security Group for the Target Instances
+// egress open for downloading packages
 resource "aws_security_group" "instance" {
   name = "terraform-example-instance"
   ingress {
+    from_port   = var.server_port
+    to_port     = var.server_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
     from_port   = var.server_port
     to_port     = var.server_port
     protocol    = "tcp"
@@ -111,9 +118,7 @@ resource "aws_autoscaling_group" "example" {
   }
 }
 
-/* security_groups    = ["${aws_security_group.instance.id}"] */
-
-// output whatever you need. console.log() 
-output "aws_autoscaling_group_target_group_arns" {
-  value = aws_autoscaling_group.example.target_group_arns
+// output whatever you need
+output "alb_dns_name" {
+  value = aws_lb.test.dns_name 
 }
