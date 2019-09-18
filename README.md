@@ -310,6 +310,10 @@ Checking the provider documentation of `aws_lb_listener` one can configure an `a
 11. **Error** 504. Apparently the ALB's security group doesn't allow the requests to reach the target.
 12. Edited the outbound routes! **Success**
 
+## Serving a static html file with nginx
+I have decided to use a quickstart maintained AMI, and install nginx through `user_data`.
+
+
 
 
 

@@ -7,7 +7,7 @@ provider "aws" {
 variable "server_port" {
   description = "The port the server will use for HTTP requests"
   type        = number
-  default     = 8080
+  default     = 80
 }
 
 // get the default VPC id
@@ -24,14 +24,14 @@ data "aws_subnet_ids" "example" {
 resource "aws_security_group" "lb_sg" {
   name = "terraform-example-alb"
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = var.server_port
+    to_port     = var.server_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = var.server_port
+    to_port     = var.server_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -49,7 +49,7 @@ resource "aws_lb" "test" {
 // ALB Target Group for Autoscalling Group
 resource "aws_lb_target_group" "test" {
   name     = "tf-example-lb-tg"
-  port     = 8080
+  port     = var.server_port
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.selected.id
   /*   health_check {
@@ -61,7 +61,7 @@ resource "aws_lb_target_group" "test" {
 // Listener for forwarding to Target Group
 resource "aws_lb_listener" "server" {
   load_balancer_arn = "${aws_lb.test.arn}"
-  port              = 80
+  port              = var.server_port
   protocol          = "HTTP"
 
   default_action {
@@ -92,11 +92,7 @@ resource "aws_launch_configuration" "example" {
   image_id        = "ami-ada823d3"
   instance_type   = "t3.micro"
   security_groups = [aws_security_group.instance.id]
-  user_data       = <<-EOF
-              #!/bin/bash
-              echo "Hello, World" > index.html
-              nohup busybox httpd -f -p "${var.server_port}" &
-              EOF
+  user_data       = "${file("install_nginx.sh")}"
   lifecycle {
     create_before_destroy = true
   }
