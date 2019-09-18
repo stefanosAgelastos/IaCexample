@@ -131,6 +131,7 @@ I'm going ahead to change the ami to another one. I expect to see the new plan a
 
 Switching from:
 - Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
+to
 + Amazon Linux 2 AMI (HVM), SSD Volume Type
 Instance type remains the same.
 `terraform apply` shows the changes in the plan.
