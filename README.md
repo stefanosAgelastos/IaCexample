@@ -306,7 +306,9 @@ Checking the provider documentation of `aws_lb_listener` one can configure an `a
 7. In both cases above I do not manage to connect to server.
 8. Edited the default security group that was auto assigne to the ALB, and now I can get the `Hello, world` message!
 9. **Success** forwarding works on different ports also!
-10. Configuring one more security group for the load balancer
+10. Configuring one more security group for the load balancer. port 80, tcp.
+11. **Error** 504. Apparently the ALB's security group doesn't allow the requests to reach the target.
+12. Edited the outbound routes! **Success**
 
 
 
