@@ -33,9 +33,11 @@ resource "aws_launch_configuration" "example" {
   }
 }
 
+data "aws_availability_zones" "all" {}
+
 resource "aws_autoscaling_group" "example" {
   launch_configuration = aws_launch_configuration.example.id
-  availability_zones   = ["eu-north-1a"]
+  availability_zones   = data.aws_availability_zones.all.names
   min_size             = 2
   max_size             = 10
   tag {
@@ -44,3 +46,24 @@ resource "aws_autoscaling_group" "example" {
     propagate_at_launch = true
   }
 }
+
+data "aws_vpc" "selected" {
+  default = true
+}
+
+data "aws_subnet_ids" "example" {
+  vpc_id = "${data.aws_vpc.selected.id}"
+}
+
+output "instance_ip_addr" {
+  value = data.aws_subnet_ids.example.ids
+}
+
+ resource "aws_lb" "test" {
+  name               = "test-alb-tf"
+  internal           = false
+  load_balancer_type = "application"
+  subnets = data.aws_subnet_ids.example.ids
+}
+
+  /* security_groups    = ["${aws_security_group.instance.id}"] */

@@ -217,7 +217,7 @@ I understand that our setup needs:
 
 ## Setting up the resources:
 ### Autoscaling group
-I will start my research on the **autoscaling group**, since that is onde level above having one instance.
+I will start by exploring the **autoscaling group**, since that is onde level above having one instance.
 Here I feel confident enough to also start looking at the tutorial you send me.
 I found the autoscaling group in the AWS provider docs [here](https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html)
 Looking at the documentation I see that I need a `aws_launch_configuration`
@@ -242,10 +242,51 @@ Looking at the documentation I see that I need a `aws_launch_configuration`
               nohup busybox httpd -f -p "${var.server_port}" &
               EOF
 ```
-This method doesn't work initially, but then I realised that my image is Linux and busybox is preinstalled on Ubuntu. I changed the `image_id` and applied again. Now I can `curl` any of the two instances and get back `Hello, World`. this is good motivation to keep on.
+This "hack" didn't work initially, but then I realised that my image is Linux and busybox is preinstalled on Ubuntu. I changed the `image_id` and applied again. Now I can `curl` any of the two instances and get back `Hello, World`. this gives me good motivation to keep on. I will leave the busybox there for the moment.
+
+### Application Load Balancer
+The tutorial explains how to setup a classic LB. 
+My plan is to refer to the provisioners docs [here](https://www.terraform.io/docs/providers/aws/r/lb.html). Another idea is to check how can one do this manually as to figure out what are the dependencies between an ALB and an autoscalling group.
+1. Declare the example usage from the documentation, and strip it down to minimum fields.
+2. The example comes with fields set for `security_groups` & `subnets`. Both are optional according to documentation.
+3. **I was wrong**I provide the id for the `resource "aws_security_group" "instance"{[CONFIG …]}` and remove the `subnets` field
+4. `apply yes`
+5. **Error** `Error: Error creating application Load Balancer: ValidationError: At least two subnets in two different Availability Zones must be specified`
+6. SO apparently subnets are not optional in this case.
+7. I refer to the tutorial and I need to bring in a datasource to get the list of subnets available to my VPC.
+8. From the provider documentation I think something like this will do `aws_subnet_ids`
+8. I take the chance and bring also a datasource for my available AZ, and provide it to the `aws_autoscaling_group`.
+
+**STOP**
+I think I am doing something wrong:
+1. The security group I assigned to the ALB allows only tcp traffic on 8080.
+2. I believe the ALB should be receiving traffic on port 80 from any public IP, and then point somehow to the autoscalling group.
+3. The ALB needs two subnets from different AZs.
+4. My autoscalling group is in the Default VPC which has three subnets, in two AZs.
+5. Both of my instances are in the same subnet.
+
+Also from a bit of browsing in the providers documentation I found the following:
+1. `aws_autoscalling_group` has optional field `target_group_arns` that receives a list of `aws_alb_target_group` ARNs for use with ALB.
+2. The AWS manual says also that an Autoscalling Group has to be attached to a target group when choosing ALB.
+3. The target group must have a target type of instance.
+4. Also looking at my setup at the moment, the root resource here is the Autoscalling Group. It holds dependecies towards the Launch Configuration and the AZs.
+>> *How can I get a reference to the subnets from the Autoscalling Group?*
+5. I can get the VPC from the Autoscalling Group, and from there I can get the subnets.
+6. I make a datasource of type `aws_subnet_ids` and configure `vpc_id = "${aws_autoscaling_group.example.vpc_zone_identifier}"`
+7. **Unfortunately** `NOTE: Some values are not always set and may not be available for interpolation.` in `aws_autoscalling_group`
+8. I will do the hack and get the id of the default vpc for the region, and from that extract the subnet ids.
+9. It is working, I have an ALB in the default VPC attached to all three subnets in 2 AZs.
+10. I just read [this page](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html#application-load-balancer-components) about the different components of a ALB. This clears up some things. ![](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/images/component_architecture.png)
+
+### Time for the Target Group:
 
 
 
 
 
-# Provisioning :)
+# Provisioners, I shouldn't use them :)
+[from the docs:]
+(https://www.terraform.io/docs/provisioners/#passing-data-into-virtual-machines-and-other-compute-resources)
+If you are building custom machine images, you can make use of the "user data" or "metadata" passed by the above means in whatever way makes sense to your application, by referring to your vendor's documentation on how to access the data at runtime.
+
+This approach is required if you intend to use any mechanism in your cloud provider for automatically launching and destroying servers in a group, because in that case individual servers will launch unattended while Terraform is not around to provision them.
