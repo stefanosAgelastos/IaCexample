@@ -6,18 +6,32 @@ Document your thoughts into a README so I know how you work and where I can help
 
 # Contents
 [Intro and setup](#intro-and-setup)
+
 [Writing the first tf](#writing-the-first-tf)
 - [Initialize](#initialize)
 - [Apply](#apply)
 - [Confirm Change](#confirm-change)
 - [Remarks](#remarks)
+
 [More basics](#more-basics)
 - [Change](#change)
 - [Destroy](#destroy)
 - [Dependencies](#dependencies)
-[Working on assignment](#working-on-assignment)
-[Working on assignment](#working-on-assignment)
-     
+
+[Working on Autoscalling group](#working-on-autoscalling-group)
+- [Launch Configuration](#alb)
+- [Security Group](#dependencies)
+- [Autoscaling Group](#autoscaling-group)
+- [busybox](#alb)
+
+[Working on ALB](#working-on-alb)
+- [Initial idea](#initial-idea)
+- [More reading](#more-reading)
+- [Target group](#target-group)
+- [Listener](#listener)
+
+[Nginx](#nginx)
+
 Links:
 
 https://www.terraform.io/
