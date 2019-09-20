@@ -2,7 +2,7 @@
 
 
 The assignment is to use Terraform to provision a load balancer that points to an Autoscaling group which runs ec2 with an NGINX as static HTML server.
-Document your thoughts into a README so I know how you work and where I can help you get better.
+I'm also instructed to document my thoughts into a README, in order to showcase how I work and facilitate my mentor in providing me help to get better.
 LINKS [Documentation](https://www.terraform.io/) and [tutorial](https://blog.gruntwork.io/an-introduction-to-terraform-f17df9c6d180)
 
 # Contents
@@ -31,9 +31,9 @@ LINKS [Documentation](https://www.terraform.io/) and [tutorial](https://blog.gru
 
 # Intro and setup
 
-Just read the intro to terraform, cool name. I read about the use cases they portray.
+Just read the intro to terraform, cool and appropriate name. I read about the use cases they portray.
 ### Setup
-I am downloading the Terraform CLI tool, set path, run `terraform`, good
+I am downloading the Terraform CLI tool, set path and run `terraform`, all good.
 
 Okay, first I'm gonna make myself a new AWS account.
 
@@ -41,17 +41,17 @@ Dowloading the amazon CLI
 
 configuring the AWS CLI
 - making new user with programmatic access for my laptop
-- add user to new group named MyAdministrators
+- add user to new group
 - Assign to group AdministratorAccess policy: Provides full access to AWS services and resources.
-- Provided credentials of new user to `aws configure`
+- Provided credentials of new user to `aws configure` via CLI
 
 # Writing the first tf
 ### Touched example.tf
 
-.tf configuration language docs [here](https://www.terraform.io/docs/configuration/index.html).
+You can find .tf configuration files language docs [here](https://www.terraform.io/docs/configuration/index.html).
 Copied example from [guide](https://learn.hashicorp.com/terraform/getting-started/build#configuration), changed region to eu-north-1 and changed AMI to region specific: Ubuntu AMI ami-ada823d3
 
-### point of doubt:
+### notes to myself:
 
 - "We are explicitly defining the default AWS config profile here to illustrate how Terraform accesses sensitive credentials."
 - I understand that I could skip the profile field if there's only one user.
@@ -88,8 +88,8 @@ nano nano ~/.aws/credentials
 aws_access_key_id = AKIARR7CRD7BJX7OBI42
 ```
 
-See the aws_secret_access_key is missing. I edit the `credentials` with nano
-and now:
+I see that the aws_secret_access_key is missing. I edit the `credentials` with nano
+and then:
 
 ```shell
 terraform apply
@@ -104,11 +104,11 @@ Resource actions are indicated with the following symbols:
 ## Confirm change
 So now I know what changes will be applied. I press yes because it looks good..
 
-**Error:** `Error launching source instance....The image id '[ami-2757f631]' does not exist` OKAY, wrong AMI. Changing `example.tf` and then `terraform apply`.
+**Error:** `Error launching source instance....The image id '[ami-2757f631]' does not exist` OKAY, I provided a wrong AMI. Changing `example.tf` and then `terraform apply`.
 
-**Error:** `Error launching source instance: ... In order to use this AWS Marketplace product you need to accept terms...` Wrong AMI again.
+**Error:** `Error launching source instance: ... In order to use this AWS Marketplace product you need to accept terms...` Wrong AMI again, marketplace AMIs require manual subscription before first use.
 
-**Error:**`Error launching source instance: ... configuration is currently not supported ... "aws_instance" "example" {..` Wrong instance type, changing to `instance_type = "t3.micro"`
+**Error:**`Error launching source instance: ... configuration is currently not supported ... "aws_instance" "example" {..` Wrong instance type provided, changing to `instance_type = "t3.micro"`
 and now:
 
 ```shell
@@ -120,7 +120,7 @@ Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
 OK, now I can see in my AWS console the instance initializing. GOOD.
 
-### My notes
+### notes to myself
 - `terraform.tfstate` state file. It keeps track of the IDs of created resources so that Terraform knows what it is managing. 
 -  It is generally recommended to setup remote state when working with Terraform, to share the state automatically. [guide](https://www.terraform.io/docs/state/remote.html)
 - "These values can actually be referenced to configure other resources or outputs, which will be covered later in the getting started guide."
@@ -129,10 +129,10 @@ OK, now I can see in my AWS console the instance initializing. GOOD.
 
 I'm going ahead to change the ami to another one. I expect to see the new plan and aprove it.
 
-Switching from:
-- Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
-to
-+ Amazon Linux 2 AMI (HVM), SSD Volume Type
+Switching:
+- from Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
+
++ to Amazon Linux 2 AMI (HVM), SSD Volume Type
 Instance type remains the same.
 `terraform apply` shows the changes in the plan.
 
@@ -153,7 +153,7 @@ I can see the new instance on the AWS web console.
 `terraform destroy` the "opposite" of `apply`
 I try it and get a plan of removing everything.
 
-**Idea**
+### note to myself
 - If I remove everything from the `example.tf` I get `Error: Missing required argument`
 - If I remove only the resource block from `example.tf` I get the same plan as in `terraform destroy`
 I approve the above plan.
@@ -162,7 +162,7 @@ The instance is terminated, and the `terraform.tfstate` holds no more resources 
 
 ## Dependencies
 
-Going to speed up things after a text from Matt. Going to assign an elastic IP , edit the example instance to depend on an s3 bucket and another ec2 instance. `terrafrom apply` gives me the new plan that I approve
+Going to speed up things after a text from Matt. Going further with the get started guide and assign an elastic IP , edit the example instance to depend on an s3 bucket and add another ec2 instance. `terrafrom apply` gives me the new plan that I approve.
 
 **Error**
 
@@ -170,8 +170,8 @@ Going to speed up things after a text from Matt. Going to assign an elastic IP ,
 
 `Error: Error launching source instance: InvalidAMIID.NotFound: `
 
-I see that I have the **wrong ami** for the ec2, and there's a **naming conflict** with the bucket.
-Also I notice that in the state I have resources entries for:
+I see that I have a **wrong ami** for the ec2, and there's a **naming conflict** with the bucket.
+Also I notice that in the state I have resource entries for:
 - elastic ip
 - example ec2 that depends on the bucket.
 - both resources have an empty array for instances.
@@ -192,14 +192,14 @@ I understand that our setup needs:
 - three core resources from AWS, **EC2**, **autoscaling group** and **Application Load Balancer**
 - then it also needs some configured software **NGINX serving html** running on the EC2 instances. I can imagine that we could do this easily by choosing a preconfigured image for our instance, but I keep my options open.
 
-I will start by exploring the **autoscaling group**, since that is onde level above having one instance.
-Here I feel confident enough to also start looking at the tutorial you send me.
+I will start by exploring the **autoscaling group**, since that is one level above having one instance.
+Here I feel confident enough to also start looking at the tutorial I was provided with.
 I found the autoscaling group in the AWS provider docs [here](https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html)
-Looking at the documentation I see that I need a `aws_launch_configuration`
+Looking at the documentation I see that I also need an `aws_launch_configuration` resource.
 ## Launch Configuration
-1. I insert a `resource "aws_launch_configuration" "example" {[CONFIG …]}` I find in the tutorial
-2. I use the `image_id` as `ami` and `instance_type` from my previous `resource "aws_instance" "example"{[CONFIG …]}`
-3. I see that I am missing a `security_groups` field. This will allow trafic and specific protocols to and from the ec2 instances.
+1. I insert a `resource "aws_launch_configuration" "example" {[CONFIG …]}` I found in the tutorial
+2. I provide the `image_id` as `ami` and `instance_type` from my previous `resource "aws_instance" "example"{[CONFIG …]}`
+3. I notice that I am missing a `security_groups` field. This will allow trafic and specific protocols to and from the ec2 instances.
 ## Security Group
 4. I declare a `resource "aws_security_group" "instance" {[CONFIG …]}` with rules for tcp port 8080. 
 5. Now I am missing the actual `aws_autoscaling_group` resource.
